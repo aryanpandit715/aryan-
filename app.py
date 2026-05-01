@@ -66,7 +66,7 @@ def get_live_nse():
             })
         return pd.DataFrame(final_rows), spot, atm
 # --- FETCH & DISPLAY DATA ---
-
+try
     # Naya data lane ki koshish
     df_new, spot_new, atm_new = get_live_nse()
 except Exception:
