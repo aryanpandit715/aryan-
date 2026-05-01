@@ -65,19 +65,33 @@ def get_live_nse():
                 "Put OI": f"{pe.get('openInterest', 0):,}"
             })
         return pd.DataFrame(final_rows), spot, atm
+# --- FETCH & DISPLAY DATA ---
+try:
+    df_new, spot_new, atm_new = get_live_nse()
+except Exception:
+    # Agar NSE band hai ya error hai
+    df_new, spot_new, atm_new = None, None, None
 
-# 1. Persistence Logic (Data memory mein save karo)
+# 1. Memory mein save karo (Persistence)
+if df_new is not None:
+    st.session_state['last_df'] = df_new
+    st.session_state['last_spot'] = spot_new
+    st.session_state['last_atm'] = atm_new
 
-
-# 2. Display Logic (Hamesha data dikhao)
+# 2. UI Display Logic
 if 'last_df' in st.session_state and st.session_state['last_df'] is not None:
-    df_to_show = st.session_state['last_df']
-    spot_to_show = st.session_state['last_spot']
-    atm_to_show = st.session_state['last_atm']
+    df_show = st.session_state['last_df']
+    spot_show = st.session_state['last_spot']
+    atm_show = st.session_state['last_atm']
     
-    # Index aur Table Display
-    st.markdown(f"### 🎯 NIFTY SPOT: `{spot_to_show}` | ATM: `{atm_to_show}`")
+    st.markdown(f"### 🎯 NIFTY SPOT: `{spot_show}` | ATM: `{atm_show}`")
+    
     if df_new is None:
+        st.info("🕒 Market Closed. Showing Friday's closing data.")
+    
+    st.table(df_show)
+else:
+    st.warning("NSE Server se data fetch kiya ja raha hai... Market khulte hi 😈 entries dikhengi!")
         st.info("🕒 Market Closed. Showing Friday's closing data.")
     st.table(df_to_show)
 else:
