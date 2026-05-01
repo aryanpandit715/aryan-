@@ -67,10 +67,7 @@ def get_live_nse():
         return pd.DataFrame(final_rows), spot, atm
 
 # 1. Persistence Logic (Data memory mein save karo)
-if df_new is not None:
-    st.session_state['last_df'] = df_new
-    st.session_state['last_spot'] = spot_new
-    st.session_state['last_atm'] = atm_new
+
 
 # 2. Display Logic (Hamesha data dikhao)
 if 'last_df' in st.session_state and st.session_state['last_df'] is not None:
