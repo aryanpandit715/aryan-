@@ -65,14 +65,37 @@ def get_live_nse():
                 "Put OI": f"{pe.get('openInterest', 0):,}"
             })
         return pd.DataFrame(final_rows), spot, atm
-# --- FETCH & DISPLAY DATA (Final Fix) ---
+# --- FETCH & DISPLAY DATA (Complete Fix) ---
 try:
+    # Naya data lane ki koshish
     df_new, spot_new, atm_new = get_live_nse()
 except:
+    # Agar error aaye ya market band ho
     df_new, spot_new, atm_new = None, None, None
 
-# Persistence: Taki data hamesha memory mein rahe
+# Persistence Logic: Taki market band hone par purana data dikhe
 if df_new is not None:
+    st.session_state['last_df'] = df_new
+    st.session_state['last_spot'] = spot_new
+    st.session_state['last_atm'] = atm_new
+
+# Screen par display karne ka logic
+if 'last_df' in st.session_state and st.session_state['last_df'] is not None:
+    df = st.session_state['last_df']
+    spot = st.session_state['last_spot']
+    atm = st.session_state['last_atm']
+    
+    st.markdown(f"### 🎯 NIFTY SPOT: `{spot}` | ATM: `{atm}`")
+    
+    # Status Message
+    if df_new is None:
+        st.info("🕒 Market Closed. Showing Friday's closing data.")
+    
+    # Table Display
+    st.table(df)
+else:
+    # Agar bilkul bhi data na ho
+    st.warning("NSE Server se connection banaya ja raha hai... Market khulte hi 😈 Smart Money entries yahan dikhengi!")
     st.session_state['last_df'] = df_new
     st.session_state['last_spot'] = spot_new
     st.session_state['last_atm'] = atm_new
