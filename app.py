@@ -13,7 +13,11 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-# --- LIVE NSE ENGINE ---
+# --- SESSION STATE INITIALIZATION ---
+if 'last_df' not in st.session_state:
+    st.session_state['last_df'] = None
+    st.session_state['last_spot'] = "Loading..."
+    st.session_state['last_atm'] = "Loading..."# --- LIVE NSE ENGINE ---
 def get_live_nse():
     url = "https://www.nseindia.com/api/option-chain-indices?symbol=NIFTY"
     headers = {
@@ -61,13 +65,27 @@ with col3:
     timer_placeholder = st.empty()
 
 # --- FETCH & DISPLAY DATA ---
-df, spot, atm = get_live_nse()
+# --- FETCH & DISPLAY DATA (With Persistence) ---
+df_new, spot_new, atm_new = get_live_nse()
+
+# Agar naya data mil gaya (Market Open), toh save karo
+if df_new is not None:
+    st.session_state['last_df'] = df_new
+    st.session_state['last_spot'] = spot_new
+    st.session_state['last_atm'] = atm_new
+
+# Hamesha display karo (Purana ya Naya)
+df = st.session_state['last_df']
+spot = st.session_state['last_spot']
+atm = st.session_state['last_atm']
 
 if df is not None:
     st.write(f"**NIFTY SPOT:** {spot} | **ATM:** {atm}")
+    if df_new is None:
+        st.caption("🕒 Market Closed. Showing last recorded data from Friday.")
     st.table(df)
 else:
-    st.warning("NSE Server Connection Pending... Waiting for Market Open.")
+    st.warning("NSE Server Connection Pending... Waiting for first data fetch. 😈")
 import yfinance as yf
 
 # --- LIVE GLOBAL MARKET MONITOR ---
