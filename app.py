@@ -68,30 +68,50 @@ if df is not None:
     st.table(df)
 else:
     st.warning("NSE Server Connection Pending... Waiting for Market Open.")
-# --- GLOBAL MARKET MONITOR ---
+import yfinance as yf
+
+# --- LIVE GLOBAL MARKET MONITOR ---
 st.markdown("---")
-st.subheader("🌍 Global Market Sentiment")
+st.subheader("🌍 Global Market Sentiment (Live)")
 
-# Example Data (Monday ko real-time connect karenge)
-global_data = {
-    "GIFTY NIFTY": {"Price": "22,450", "Status": "Gap Up 🚀", "Sentiment": "Bullish"},
-    "NASDAQ": {"Price": "16,150", "Status": "+1.2%", "Sentiment": "Bullish"},
-    "DOW JONES": {"Price": "38,900", "Status": "+0.5%", "Sentiment": "Bullish"},
-    "CRUDE OIL": {"Price": "82.10", "Status": "Weak 📉", "Sentiment": "Bearish"},
-    "BRENT": {"Price": "86.40", "Status": "Steady", "Sentiment": "Bearish"}
-}
+def get_global_live():
+    # Symbols: Gifty Nifty (NSE), Nasdaq, Dow, Crude, Brent
+    symbols = {
+        "GIFTY NIFTY": "^NSEI", # Nifty 50 ko reference le rahe hain
+        "NASDAQ": "^IXIC",
+        "DOW JONES": "^DJI",
+        "CRUDE OIL": "CL=F",
+        "BRENT": "BZ=F"
+    }
+    
+    data_list = {}
+    for name, sym in symbols.items():
+        ticker = yf.Ticker(sym)
+        info = ticker.fast_info
+        price = round(info.last_price, 2)
+        prev_close = info.previous_close
+        change = round(((price - prev_close) / prev_close) * 100, 2)
+        
+        # Bullish/Bearish Logic
+        sentiment = "Bullish" if change >= 0 else "Bearish"
+        status = "Gap Up 🚀" if change > 0.5 else ("Gap Down 📉" if change < -0.5 else "Steady")
+        
+        data_list[name] = {"Price": price, "Change": change, "Status": status, "Sentiment": sentiment}
+    return data_list
 
-cols = st.columns(5)
-for i, (name, data) in enumerate(global_data.items()):
-    with cols[i]:
-        color = "green" if data['Sentiment'] == "Bullish" else "red"
-        st.markdown(f"**{name}**")
-        st.markdown(f"### :{color}[{data['Price']}]")
-        st.caption(f"{data['Status']}")
-        st.write(f"{'🟢' if color == 'green' else '🔴'} {data['Sentiment']}")
-# --- 14 SEC COUNTDOWN LOGIC ---
-for i in range(14, 0, -1):
-    timer_placeholder.markdown(f'<p class="timer-text">⏳ NEXT REFRESH: {i}s</p>', unsafe_allow_html=True)
-    time.sleep(1)
+# Data fetch karo
+try:
+    live_data = get_global_live()
+    cols = st.columns(5)
+    for i, (name, data) in enumerate(live_data.items()):
+        with cols[i]:
+            color = "green" if data['Sentiment'] == "Bullish" else "red"
+            st.markdown(f"**{name}**")
+            st.markdown(f"### :{color}[{data['Price']}]")
+            st.caption(f"{data['Change']}% | {data['Status']}")
+            st.write(f"{'🟢' if color == 'green' else '🔴'} {data['Sentiment']}")
+except:
+    st.write("Fetching Live Global Data...")
 
+# Sabse niche st.rerun() rehne dena
 st.rerun()
