@@ -68,7 +68,27 @@ if df is not None:
     st.table(df)
 else:
     st.warning("NSE Server Connection Pending... Waiting for Market Open.")
+# --- GLOBAL MARKET MONITOR ---
+st.markdown("---")
+st.subheader("🌍 Global Market Sentiment")
 
+# Example Data (Monday ko real-time connect karenge)
+global_data = {
+    "GIFTY NIFTY": {"Price": "22,450", "Status": "Gap Up 🚀", "Sentiment": "Bullish"},
+    "NASDAQ": {"Price": "16,150", "Status": "+1.2%", "Sentiment": "Bullish"},
+    "DOW JONES": {"Price": "38,900", "Status": "+0.5%", "Sentiment": "Bullish"},
+    "CRUDE OIL": {"Price": "82.10", "Status": "Weak 📉", "Sentiment": "Bearish"},
+    "BRENT": {"Price": "86.40", "Status": "Steady", "Sentiment": "Bearish"}
+}
+
+cols = st.columns(5)
+for i, (name, data) in enumerate(global_data.items()):
+    with cols[i]:
+        color = "green" if data['Sentiment'] == "Bullish" else "red"
+        st.markdown(f"**{name}**")
+        st.markdown(f"### :{color}[{data['Price']}]")
+        st.caption(f"{data['Status']}")
+        st.write(f"{'🟢' if color == 'green' else '🔴'} {data['Sentiment']}")
 # --- 14 SEC COUNTDOWN LOGIC ---
 for i in range(14, 0, -1):
     timer_placeholder.markdown(f'<p class="timer-text">⏳ NEXT REFRESH: {i}s</p>', unsafe_allow_html=True)
