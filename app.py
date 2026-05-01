@@ -65,13 +65,31 @@ def get_live_nse():
                 "Put OI": f"{pe.get('openInterest', 0):,}"
             })
         return pd.DataFrame(final_rows), spot, atm
-    except:
-        return None, 0, 0
+# --- SMART PERSISTENCE LOGIC ---
+df_new, spot_new, atm_new = get_live_nse()
 
-# --- TOP NAVIGATION (Timer & Button) ---
-col1, col2, col3 = st.columns([2, 1, 1])
+# Agar naya data mil raha hai, toh memory mein save karo
+if df_new is not None:
+    st.session_state['last_df'] = df_new
+    st.session_state['last_spot'] = spot_new
+    st.session_state['last_atm'] = atm_new
 
-with col1:
+# Hamesha memory se data uthao (Taki market band hone par khali na dikhe)
+if 'last_df' in st.session_state and st.session_state['last_df'] is not None:
+    df = st.session_state['last_df']
+    spot = st.session_state['last_spot']
+    atm = st.session_state['last_atm']
+    
+    # Nifty Index Display
+    st.markdown(f"### 🎯 NIFTY SPOT: `{spot}` | ATM: `{atm}`")
+    
+    if df_new is None:
+        st.info("🕒 Market is Closed. Showing Friday's closing data.")
+    
+    # Option Chain Table
+    st.table(df)
+else:
+    st.warning("NSE Server Connection Pending... Market khulte hi data yahan dikhega! 😈")
     st.markdown('<h2 style="margin:0;">📟 NSE LIVE TERMINAL</h2>', unsafe_allow_html=True)
 
 with col2:
