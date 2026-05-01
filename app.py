@@ -65,13 +65,30 @@ def get_live_nse():
                 "Put OI": f"{pe.get('openInterest', 0):,}"
             })
         return pd.DataFrame(final_rows), spot, atm
-# --- SMART PERSISTENCE LOGIC ---
-df_new, spot_new, atm_new = get_live_nse()
+# --- FETCH & DISPLAY DATA ---
+try:
+    df_new, spot_new, atm_new = get_live_nse()
+except:
+    df_new, spot_new, atm_new = None, None, None
 
-# Agar naya data mil raha hai, toh memory mein save karo
+# Persistence Logic (Taki data hamesha dikhe)
 if df_new is not None:
     st.session_state['last_df'] = df_new
     st.session_state['last_spot'] = spot_new
+    st.session_state['last_atm'] = atm_new
+
+# Data ko Screen par dikhana
+if 'last_df' in st.session_state and st.session_state['last_df'] is not None:
+    df = st.session_state['last_df']
+    spot = st.session_state['last_spot']
+    atm = st.session_state['last_atm']
+    
+    st.markdown(f"### 🎯 NIFTY SPOT: `{spot}` | ATM: `{atm}`")
+    if df_new is None:
+        st.info("🕒 Market Closed. Showing Friday's Data.")
+    st.table(df)
+else:
+    st.warning("NSE Server Connection Pending... Market khulte hi data dikhega! 😈")
     st.session_state['last_atm'] = atm_new
 
 # Hamesha memory se data uthao (Taki market band hone par khali na dikhe)
