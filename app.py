@@ -147,5 +147,42 @@ if df is not None:
         st.markdown(f"**Market Sentiment:** :{pcr_colorprefix}[{pcr_mood}]")
 else:
     st.info("PCR Data Monday morning 9:15 AM par live hoga. 😈")
-# Sabse niche st.rerun() rehne dena
+import datetime
+import pytz
+
+# --- PERMANENT ALARM & GLOBAL SUMMARY ---
+st.markdown("---")
+ist = pytz.timezone('Asia/Kolkata')
+now = datetime.datetime.now(ist)
+
+# 1. Market Open Alarm (Har Trading Day: Mon-Fri, 9:15 AM)
+is_trading_day = now.weekday() < 5  # 0 to 4 means Mon to Fri
+is_open_time = now.hour == 9 and now.minute == 15
+
+if is_trading_day and is_open_time:
+    st.toast("🔔 MARKET OPENED! Check Smart Money (😈) Entries.", icon="🚀")
+    # Alarm Sound (Hidden HTML)
+    st.components.v1.html(
+        """
+        <audio autoplay>
+          <source src="https://www.soundjay.com/buttons/beep-01a.mp3" type="audio/mpeg">
+        </audio>
+        """,
+        height=0,
+    )
+
+# 2. Daily Global Market Summary Alert
+if 'live_data' in locals():
+    # Gifty Nifty Movement Check
+    gifty_move = live_data.get("GIFTY NIFTY", {}).get("Change", 0)
+    nasdaq_move = live_data.get("NASDAQ", {}).get("Change", 0)
+    
+    if gifty_move > 0.8:
+        st.success(f"📈 BULLISH GLOBAL HINT: Gifty Nifty is up {gifty_move}%! 😈")
+    elif gifty_move < -0.8:
+        st.error(f"📉 BEARISH GLOBAL HINT: Gifty Nifty is down {gifty_move}%! Savdhan.")
+
+    # High Volatility Alert (Nasdaq)
+    if abs(nasdaq_move) > 1.5:
+        st.warning(f"⚠️ VOLATILITY ALERT: Nasdaq move is {nasdaq_move}%. Expect big swings!")# Sabse niche st.rerun() rehne dena
 st.rerun()
