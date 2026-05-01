@@ -69,20 +69,18 @@ def get_live_nse():
 # Seedha data lane ki koshish
 data_tuple = get_live_nse()
 
-# Check karo ki data mila ya nahi
 if data_tuple is not None:
     df_new, spot_new, atm_new = data_tuple
-    # Memory mein save karo
     st.session_state['last_df'] = df_new
     st.session_state['last_spot'] = spot_new
     st.session_state['last_atm'] = atm_new
 
-# Hamesha memory wala data dikhao
 if 'last_df' in st.session_state:
     df_final = st.session_state['last_df']
     spot_final = st.session_state['last_spot']
     atm_final = st.session_state['last_atm']
-    
+    st.markdown(f"### 🎯 NIFTY SPOT: `{spot_final}` | ATM: `{atm_final}`")
+    st.table(df_final)
     # Nifty Display
     st.markdown(f"### 🎯 NIFTY SPOT: `{spot_final}` | ATM: `{atm_final}`")
     
