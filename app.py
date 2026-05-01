@@ -67,9 +67,10 @@ def get_live_nse():
         return pd.DataFrame(final_rows), spot, atm
 # --- FETCH & DISPLAY DATA ---
 try:
+    # Naya data lane ki koshish
     df_new, spot_new, atm_new = get_live_nse()
 except Exception:
-    # Agar NSE band hai ya error hai
+    # Agar NSE server response na de (Market Closed)
     df_new, spot_new, atm_new = None, None, None
 
 # 1. Memory mein save karo (Persistence)
@@ -78,11 +79,23 @@ if df_new is not None:
     st.session_state['last_spot'] = spot_new
     st.session_state['last_atm'] = atm_new
 
-# 2. UI Display Logic
+# 2. UI Display Logic (Hamesha purana ya naya data dikhao)
 if 'last_df' in st.session_state and st.session_state['last_df'] is not None:
     df_show = st.session_state['last_df']
     spot_show = st.session_state['last_spot']
     atm_show = st.session_state['last_atm']
+    
+    # Nifty Index Display
+    st.markdown(f"### 🎯 NIFTY SPOT: `{spot_show}` | ATM: `{atm_show}`")
+    
+    if df_new is None:
+        st.info("🕒 Market Closed. Showing Friday's closing data.")
+    
+    # Option Chain Table Display
+    st.table(df_show)
+else:
+    # Bilkul fresh start ke liye
+    st.warning("NSE Server se connect ho raha hai... Pehli baar data aane mein 1-2 min lag sakte hain. 😈")
     
     st.markdown(f"### 🎯 NIFTY SPOT: `{spot_show}` | ATM: `{atm_show}`")
     
