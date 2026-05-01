@@ -112,6 +112,40 @@ try:
             st.write(f"{'🟢' if color == 'green' else '🔴'} {data['Sentiment']}")
 except:
     st.write("Fetching Live Global Data...")
+# --- PCR (PUT-CALL RATIO) MONITOR ---
+st.markdown("---")
+st.subheader("📊 Option Chain Sentiment (PCR)")
 
+def calculate_pcr(df):
+    try:
+        total_put_oi = df['PE_OI'].sum()
+        total_call_oi = df['CE_OI'].sum()
+        pcr_val = round(total_put_oi / total_call_oi, 2)
+        
+        # PCR Interpretation
+        if pcr_val > 1.2:
+            mood = "Extremely Bullish (Overbought)"
+            color = "green"
+        elif pcr_val < 0.7:
+            mood = "Extremely Bearish (Oversold)"
+            color = "red"
+        else:
+            mood = "Neutral / Sideways"
+            color = "white"
+            
+        return pcr_val, mood, color
+    except:
+        return "Wait", "Market Open Hone Ka Wait Karein", "white"
+
+# Display PCR
+if df is not None:
+    pcr_value, pcr_mood, pcr_colorprefix = calculate_pcr(df)
+    c1, c2 = st.columns(2)
+    with c1:
+        st.metric("NIFTY PCR", pcr_value)
+    with c2:
+        st.markdown(f"**Market Sentiment:** :{pcr_colorprefix}[{pcr_mood}]")
+else:
+    st.info("PCR Data Monday morning 9:15 AM par live hoga. 😈")
 # Sabse niche st.rerun() rehne dena
 st.rerun()
