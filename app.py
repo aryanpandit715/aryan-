@@ -65,27 +65,32 @@ def get_live_nse():
                 "Put OI": f"{pe.get('openInterest', 0):,}"
             })
         return pd.DataFrame(final_rows), spot, atm
-# --- FETCH & DISPLAY DATA ---
-try:
-    df_new, spot_new, atm_new = get_live_nse()
-except Exception:
-    df_new, spot_new, atm_new = None, None, None
+# --- SIMPLE FETCH & DISPLAY ---
+# Seedha data lane ki koshish
+data_tuple = get_live_nse()
 
-# 1. Persistence Logic (Save to memory)
-if df_new is not None:
+# Check karo ki data mila ya nahi
+if data_tuple is not None:
+    df_new, spot_new, atm_new = data_tuple
+    # Memory mein save karo
     st.session_state['last_df'] = df_new
     st.session_state['last_spot'] = spot_new
     st.session_state['last_atm'] = atm_new
 
-# 2. UI Display Logic (Show from memory)
-if 'last_df' in st.session_state and st.session_state['last_df'] is not None:
-    df_show = st.session_state['last_df']
-    spot_show = st.session_state['last_spot']
-    atm_show = st.session_state['last_atm']
+# Hamesha memory wala data dikhao
+if 'last_df' in st.session_state:
+    df_final = st.session_state['last_df']
+    spot_final = st.session_state['last_spot']
+    atm_final = st.session_state['last_atm']
     
-    st.markdown(f"### 🎯 NIFTY SPOT: `{spot_show}` | ATM: `{atm_show}`")
+    # Nifty Display
+    st.markdown(f"### 🎯 NIFTY SPOT: `{spot_final}` | ATM: `{atm_final}`")
     
-    if df_new is None:
+    # Option Chain Table
+    st.table(df_final)
+else:
+    # Agar pehli baar chal raha ho aur data na ho
+    st.warning("NSE Server se connect ho raha hai... Monday 9:15 AM ka wait karein! 😈"):
         st.info("🕒 Market Closed. Showing Friday's data.")
     
     st.table(df_show)
