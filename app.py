@@ -65,8 +65,7 @@ def get_live_nse():
                 "Put OI": f"{pe.get('openInterest', 0):,}"
             })
         return pd.DataFrame(final_rows), spot, atm
-# --- SIMPLE FETCH & DISPLAY ---
-# Seedha data lane ki koshish
+# --- FETCH & DISPLAY DATA ---
 data_tuple = get_live_nse()
 
 if data_tuple is not None:
@@ -76,14 +75,11 @@ if data_tuple is not None:
     st.session_state['last_atm'] = atm_new
 
 if 'last_df' in st.session_state:
-    df_final = st.session_state['last_df']
-    spot_final = st.session_state['last_spot']
-    atm_final = st.session_state['last_atm']
-    st.markdown(f"### 🎯 NIFTY SPOT: `{spot_final}` | ATM: `{atm_final}`")
-    st.table(df_final)
-    # Nifty Display
-    st.markdown(f"### 🎯 NIFTY SPOT: `{spot_final}` | ATM: `{atm_final}`")
-    
+    df_f = st.session_state['last_df']
+    spot_f = st.session_state['last_spot']
+    atm_f = st.session_state['last_atm']
+    st.markdown(f"### 🎯 NIFTY SPOT: `{spot_f}` | ATM: `{atm_f}`")
+    st.table(df_f)
     # Option Chain Table
     st.table(df_final)
 else:
