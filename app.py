@@ -65,12 +65,6 @@ def get_live_nse():
                 "Put OI": f"{pe.get('openInterest', 0):,}"
             })
         return pd.DataFrame(final_rows), spot, atm
-# --- FETCH & DISPLAY DATA ---
-try:
-    df_new, spot_new, atm_new = get_live_nse()
-except Exception:
-    # Error aane par variables ko empty rakho
-    df_new, spot_new, atm_new = None, None, None
 
 # 1. Persistence Logic (Data memory mein save karo)
 if df_new is not None:
