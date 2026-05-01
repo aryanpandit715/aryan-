@@ -65,19 +65,34 @@ def get_live_nse():
                 "Put OI": f"{pe.get('openInterest', 0):,}"
             })
         return pd.DataFrame(final_rows), spot, atm
-# --- FETCH & DISPLAY DATA (Final Patch) ---
+# --- FETCH & DISPLAY DATA ---
 try:
     df_new, spot_new, atm_new = get_live_nse()
-except Exception as e:
+except Exception:
+    # Error aane par variables ko empty rakho
     df_new, spot_new, atm_new = None, None, None
 
-# 1. Memory mein save karo (Persistence)
+# 1. Persistence Logic (Data memory mein save karo)
 if df_new is not None:
     st.session_state['last_df'] = df_new
     st.session_state['last_spot'] = spot_new
     st.session_state['last_atm'] = atm_new
 
-# 2. UI par display karo
+# 2. Display Logic (Hamesha data dikhao)
+if 'last_df' in st.session_state and st.session_state['last_df'] is not None:
+    df_to_show = st.session_state['last_df']
+    spot_to_show = st.session_state['last_spot']
+    atm_to_show = st.session_state['last_atm']
+    
+    # Index aur Table Display
+    st.markdown(f"### 🎯 NIFTY SPOT: `{spot_to_show}` | ATM: `{atm_to_show}`")
+    if df_new is None:
+        st.info("🕒 Market Closed. Showing Friday's closing data.")
+    st.table(df_to_show)
+else:
+    # Pehli baar software chalne par
+    st.warning("NSE Server se data lene ki koshish jaari hai... 😈")
+
 if 'last_df' in st.session_state and st.session_state['last_df'] is not None:
     df = st.session_state['last_df']
     spot = st.session_state['last_spot']
