@@ -66,11 +66,11 @@ def get_live_nse():
             })
         return pd.DataFrame(final_rows), spot, atm
 # --- FETCH & DISPLAY DATA ---
-try
+try:
     # Naya data lane ki koshish
     df_new, spot_new, atm_new = get_live_nse()
 except Exception:
-    # Agar NSE server response na de (Market Closed)
+    # Agar error aaye ya market band ho
     df_new, spot_new, atm_new = None, None, None
 
 # 1. Memory mein save karo (Persistence)
@@ -78,7 +78,6 @@ if df_new is not None:
     st.session_state['last_df'] = df_new
     st.session_state['last_spot'] = spot_new
     st.session_state['last_atm'] = atm_new
-
 # 2. UI Display Logic (Hamesha purana ya naya data dikhao)
 if 'last_df' in st.session_state and st.session_state['last_df'] is not None:
     df_show = st.session_state['last_df']
