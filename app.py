@@ -68,30 +68,25 @@ def get_live_nse():
  # --- FETCH & DISPLAY DATA ---
 data_tuple = get_live_nse()
 
-# 1. Data Processing Logic
+# 1. Data Processing
 if data_tuple is not None:
     df_new, spot_new, atm_new = data_tuple
-    # Memory mein save karo taki market band hone par bhi dikhe
     st.session_state['last_df'] = df_new
     st.session_state['last_spot'] = spot_new
     st.session_state['last_atm'] = atm_new
 
-# 2. UI Display Logic (Memory se data uthao)
+# 2. UI Display
 if 'last_df' in st.session_state and st.session_state['last_df'] is not None:
     df_final = st.session_state['last_df']
     spot_final = st.session_state['last_spot']
     atm_final = st.session_state['last_atm']
     
-    # NIFTY Index aur ATM Header
     st.markdown(f"### 🎯 NIFTY SPOT: `{spot_final}` | ATM: `{atm_final}`")
     
-    # Agar live data nahi mil raha (Market Closed)
     if data_tuple is None:
         st.info("🕒 Market Closed. Showing last available data.")
     
-    # Final Option Chain Table
     st.table(df_final)
 else:
-    # Bilkul fresh start ke liye message
-    st.warning("NSE Server se connect ho raha hai... Monday 9:15 AM tak wait karein! 😈")
+    st.warning("NSE Server se connect ho raha hai... 😈")
 st.rerun()
